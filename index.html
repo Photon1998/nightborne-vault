@@ -634,8 +634,9 @@
     if (e.key === "Enter" && e.target.tagName !== "BUTTON") submit();
   });
 
-  // 主題切換
+  // 主題：預設淺色（切換鈕仍可切深色）
   const root = document.documentElement;
+  root.setAttribute("data-theme", "light");
   $("themeBtn").addEventListener("click", () => {
     const cur = root.getAttribute("data-theme");
     const isDark = cur ? cur === "dark"
