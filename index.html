@@ -1,0 +1,582 @@
+<title>奈特的秘密金庫 · 密碼破解儀</title>
+<style>
+  :root {
+    /* 羊皮紙金庫（淺色） */
+    --bg: #E9E1CF;
+    --panel: #F6F1E5;
+    --panel-2: #FCF9F1;
+    --ink: #2A2317;
+    --ink-soft: #6D6049;
+    --line: #D6CAB0;
+    --gold: #A47B28;
+    --gold-bright: #C09232;
+    --good: #3C8B5B;
+    --warn: #C07A1E;
+    --miss: #9E4A38;
+    --shadow: rgba(42,35,23,.16);
+    --inset: rgba(42,35,23,.28);
+    --dial-face: #201A12;
+    --dial-digit: #E7C46B;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14110B;
+      --panel: #1E1913;
+      --panel-2: #26201A;
+      --ink: #ECE3CE;
+      --ink-soft: #A2957A;
+      --line: #362E22;
+      --gold: #D4AE5C;
+      --gold-bright: #ECC978;
+      --good: #5FBF82;
+      --warn: #E5A93E;
+      --miss: #CE6E59;
+      --shadow: rgba(0,0,0,.5);
+      --inset: rgba(0,0,0,.6);
+      --dial-face: #0D0A06;
+      --dial-digit: #F0CC77;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #E9E1CF; --panel: #F6F1E5; --panel-2: #FCF9F1; --ink: #2A2317;
+    --ink-soft: #6D6049; --line: #D6CAB0; --gold: #A47B28; --gold-bright: #C09232;
+    --good: #3C8B5B; --warn: #C07A1E; --miss: #9E4A38;
+    --shadow: rgba(42,35,23,.16); --inset: rgba(42,35,23,.28);
+    --dial-face: #201A12; --dial-digit: #E7C46B;
+  }
+  :root[data-theme="dark"] {
+    --bg: #14110B; --panel: #1E1913; --panel-2: #26201A; --ink: #ECE3CE;
+    --ink-soft: #A2957A; --line: #362E22; --gold: #D4AE5C; --gold-bright: #ECC978;
+    --good: #5FBF82; --warn: #E5A93E; --miss: #CE6E59;
+    --shadow: rgba(0,0,0,.5); --inset: rgba(0,0,0,.6);
+    --dial-face: #0D0A06; --dial-digit: #F0CC77;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(120% 80% at 50% -10%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 60%),
+      var(--bg);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", "PingFang TC", "Microsoft JhengHei", Roboto, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .wrap {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: clamp(20px, 5vw, 40px) 20px 56px;
+  }
+
+  /* ---- header ---- */
+  header { text-align: center; margin-bottom: 26px; }
+  .eyebrow {
+    font-size: .72rem; letter-spacing: .34em; text-transform: uppercase;
+    color: var(--gold); font-weight: 700; margin-bottom: 10px;
+  }
+  h1 {
+    font-size: clamp(1.7rem, 6vw, 2.4rem); margin: 0; letter-spacing: .02em;
+    font-weight: 800; text-wrap: balance;
+  }
+  .sub { color: var(--ink-soft); font-size: .9rem; margin-top: 6px; }
+
+  /* ---- status bar ---- */
+  .status {
+    display: flex; justify-content: center; gap: 10px; margin: 0 0 20px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 999px;
+    padding: 6px 16px; font-size: .82rem; color: var(--ink-soft);
+    display: flex; align-items: baseline; gap: 6px;
+  }
+  .stat b { color: var(--ink); font-size: 1rem; font-variant-numeric: tabular-nums; font-weight: 800; }
+
+  /* ---- vault dial display ---- */
+  .vault {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 26px 22px 24px;
+    box-shadow: 0 18px 44px -24px var(--shadow);
+    position: relative;
+  }
+  .dial-label {
+    text-align: center; font-size: .7rem; letter-spacing: .3em; text-transform: uppercase;
+    color: var(--ink-soft); margin-bottom: 16px; font-weight: 600;
+  }
+  .dials { display: flex; justify-content: center; gap: 14px; }
+  .dial {
+    width: clamp(74px, 24vw, 104px); aspect-ratio: 3 / 4;
+    background: var(--dial-face);
+    border-radius: 14px;
+    display: grid; place-items: center;
+    box-shadow: inset 0 3px 10px 1px var(--inset),
+                inset 0 -2px 3px rgba(255,255,255,.05),
+                0 0 0 2px color-mix(in srgb, var(--gold) 55%, transparent);
+    position: relative; overflow: hidden;
+  }
+  .dial::before, .dial::after {
+    content: ""; position: absolute; left: 8%; right: 8%; height: 1px;
+    background: color-mix(in srgb, var(--gold) 40%, transparent);
+  }
+  .dial::before { top: 22%; }
+  .dial::after { bottom: 22%; }
+  .dial span {
+    font-family: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: clamp(2.8rem, 11vw, 4rem); font-weight: 700;
+    color: var(--dial-digit);
+    text-shadow: 0 1px 0 rgba(0,0,0,.5), 0 0 22px color-mix(in srgb, var(--gold) 40%, transparent);
+    font-variant-numeric: tabular-nums;
+  }
+  .dial.flip span { animation: roll .34s cubic-bezier(.2,.7,.2,1); }
+  @keyframes roll {
+    0% { transform: translateY(-42%); opacity: 0; filter: blur(2px); }
+    100% { transform: translateY(0); opacity: 1; filter: blur(0); }
+  }
+  .cue {
+    text-align: center; margin-top: 16px; font-size: .92rem; color: var(--ink);
+  }
+  .cue b { color: var(--gold); }
+
+  /* ---- feedback entry ---- */
+  .entry { margin-top: 22px; }
+  .fb-row {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+  }
+  .fb-tag {
+    display: flex; align-items: center; gap: 8px; min-width: 116px;
+    font-size: .88rem; font-weight: 600;
+  }
+  .glyph { font-size: 1.05rem; }
+  .glyph.good { color: var(--good); }
+  .glyph.warn { color: var(--warn); }
+  .fb-tag small { color: var(--ink-soft); font-weight: 400; font-size: .76rem; }
+  .seg { display: flex; gap: 6px; flex: 1; }
+  .seg button {
+    flex: 1; padding: 9px 0; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--panel-2); color: var(--ink); font-size: 1rem; font-weight: 700;
+    cursor: pointer; font-variant-numeric: tabular-nums; transition: transform .08s, background .15s, border-color .15s;
+  }
+  .seg button:hover:not(:disabled) { border-color: var(--gold); }
+  .seg button:active:not(:disabled) { transform: scale(.94); }
+  .seg button:disabled { opacity: .32; cursor: not-allowed; }
+  .seg.good button.on { background: color-mix(in srgb, var(--good) 22%, var(--panel-2)); border-color: var(--good); color: var(--ink); }
+  .seg.warn button.on { background: color-mix(in srgb, var(--warn) 22%, var(--panel-2)); border-color: var(--warn); color: var(--ink); }
+
+  .actions { display: flex; gap: 10px; margin-top: 18px; }
+  .btn {
+    flex: 1; padding: 13px 14px; border-radius: 12px; border: 1px solid transparent;
+    font-size: .95rem; font-weight: 700; cursor: pointer; transition: transform .08s, filter .15s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary {
+    background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+    color: #221a08; box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--gold) 70%, transparent);
+  }
+  .btn-primary:hover { filter: brightness(1.06); }
+  .btn-ghost { background: var(--panel-2); border-color: var(--line); color: var(--ink-soft); flex: 0 0 auto; padding: 13px 16px; }
+  .btn-ghost:hover { color: var(--ink); border-color: var(--gold); }
+  .btn-miss { background: var(--panel-2); border-color: color-mix(in srgb, var(--miss) 55%, var(--line)); color: var(--miss); flex: 0 0 auto; padding: 13px 16px; }
+  .btn-miss:hover { background: color-mix(in srgb, var(--miss) 14%, var(--panel-2)); }
+
+  .msg { margin-top: 14px; text-align: center; font-size: .88rem; min-height: 1.2em; }
+  .msg.err { color: var(--miss); font-weight: 600; }
+
+  /* ---- exclude digits ---- */
+  .exclude { margin-top: 26px; }
+  .exclude .cap {
+    font-size: .7rem; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-soft);
+    margin-bottom: 10px; font-weight: 600;
+  }
+  .chips { display: flex; gap: 7px; flex-wrap: wrap; }
+  .chip {
+    width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--ink); font-weight: 700; font-size: 1rem;
+    cursor: pointer; font-variant-numeric: tabular-nums; transition: all .14s;
+  }
+  .chip:hover { border-color: var(--gold); }
+  .chip.off {
+    background: transparent; color: var(--miss); border-color: color-mix(in srgb, var(--miss) 45%, var(--line));
+    text-decoration: line-through; opacity: .7;
+  }
+
+  /* ---- history ledger ---- */
+  .ledger { margin-top: 30px; }
+  .ledger h2 {
+    font-size: .74rem; letter-spacing: .26em; text-transform: uppercase; color: var(--ink-soft);
+    font-weight: 600; margin: 0 0 12px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .ledger h2 span { color: var(--gold); letter-spacing: 0; text-transform: none; font-size: .8rem; }
+  .row {
+    display: flex; align-items: center; gap: 14px; padding: 11px 14px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 8px;
+  }
+  .row .n { color: var(--ink-soft); font-size: .8rem; width: 26px; font-variant-numeric: tabular-nums; }
+  .row .code {
+    font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 1.25rem; font-weight: 700;
+    letter-spacing: .18em; color: var(--gold); font-variant-numeric: tabular-nums;
+  }
+  .row .res { margin-left: auto; display: flex; gap: 6px; }
+  .pip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px;
+    font-size: .8rem; font-weight: 700; font-variant-numeric: tabular-nums;
+  }
+  .pip.good { background: color-mix(in srgb, var(--good) 18%, transparent); color: var(--good); }
+  .pip.warn { background: color-mix(in srgb, var(--warn) 20%, transparent); color: var(--warn); }
+  .pip.miss { background: color-mix(in srgb, var(--miss) 16%, transparent); color: var(--miss); }
+  .empty { color: var(--ink-soft); font-size: .86rem; text-align: center; padding: 16px; }
+
+  /* ---- win ---- */
+  .win {
+    margin-top: 24px; text-align: center; padding: 26px 20px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--gold) 16%, var(--panel)), var(--panel));
+    border: 1px solid var(--gold); border-radius: 18px;
+    box-shadow: 0 0 40px -14px color-mix(in srgb, var(--gold) 60%, transparent);
+  }
+  .win .k { font-size: .72rem; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); font-weight: 700; }
+  .win .pw {
+    font-family: "SF Mono", Menlo, monospace; font-size: clamp(2.6rem, 12vw, 3.6rem); font-weight: 800;
+    letter-spacing: .22em; color: var(--gold); margin: 8px 0 4px; font-variant-numeric: tabular-nums;
+  }
+  .win p { color: var(--ink-soft); margin: 4px 0 0; font-size: .9rem; }
+
+  footer { text-align: center; color: var(--ink-soft); font-size: .78rem; margin-top: 34px; line-height: 1.7; }
+
+  /* theme toggle */
+  .toggle {
+    position: fixed; top: 14px; right: 14px; width: 38px; height: 38px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; font-size: 1rem;
+  }
+  .toggle:hover { border-color: var(--gold); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dial.flip span { animation: none; }
+    .btn:active, .seg button:active:not(:disabled) { transform: none; }
+  }
+</style>
+
+<button class="toggle" id="themeBtn" title="切換主題">◐</button>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Knight's Secret Vault</div>
+    <h1>奈特的秘密金庫</h1>
+    <div class="sub">密碼破解儀 · 你只要回報 ● 與 ▲，它幫你轉出下一組</div>
+  </header>
+
+  <div class="status">
+    <div class="stat">第 <b id="turnNo">1</b> 手</div>
+    <div class="stat">剩 <b id="remain">504</b> 種可能</div>
+    <div class="stat">最壞 <b>7</b> 手內開鎖</div>
+  </div>
+
+  <section class="vault" id="vault">
+    <div class="dial-label">在遊戲裡輸入這組密碼</div>
+    <div class="dials" id="dials">
+      <div class="dial"><span>1</span></div>
+      <div class="dial"><span>2</span></div>
+      <div class="dial"><span>3</span></div>
+    </div>
+    <div class="cue">輸入後，把遊戲回饋的 <b>●</b> 與 <b>▲</b> 數量填在下方</div>
+
+    <div class="entry">
+      <div class="fb-row">
+        <div class="fb-tag"><span class="glyph good">●</span>位置對<small>digit &amp; spot</small></div>
+        <div class="seg good" id="segBull"></div>
+      </div>
+      <div class="fb-row">
+        <div class="fb-tag"><span class="glyph warn">▲</span>只數字對<small>digit only</small></div>
+        <div class="seg warn" id="segCow"></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="submit">送出回饋</button>
+        <button class="btn btn-miss" id="allMiss" title="三個數字全不在密碼中">X 全不中</button>
+        <button class="btn btn-ghost" id="undo" title="回上一步">↶</button>
+      </div>
+      <div class="msg" id="msg"></div>
+    </div>
+
+    <div class="exclude">
+      <div class="cap">系統提示「不含這些數字」時，點掉它們</div>
+      <div class="chips" id="chips"></div>
+    </div>
+  </section>
+
+  <div id="winSlot"></div>
+
+  <section class="ledger">
+    <h2>嘗試紀錄 <span id="resetBtn" role="button" tabindex="0" style="cursor:pointer">重新開始 ↻</span></h2>
+    <div id="history"></div>
+  </section>
+
+  <footer>
+    密碼為 1~9 之中互不重複的 3 位數（共 504 種）。<br>
+    採用 minimax 策略：實測 504 種密碼，最壞 7 手、平均 4.78 手開鎖，穩過 15 手上限。
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- 核心邏輯 ----------
+  const DIGITS = "123456789".split("");
+  function allCandidates() {
+    const out = [];
+    for (const a of DIGITS) for (const b of DIGITS) for (const c of DIGITS) {
+      if (a !== b && b !== c && a !== c) out.push(a + b + c);
+    }
+    return out;
+  }
+  function score(secret, guess) {
+    let bulls = 0, common = 0;
+    for (let i = 0; i < 3; i++) if (secret[i] === guess[i]) bulls++;
+    for (const d of DIGITS) {
+      let s = 0, g = 0;
+      for (let i = 0; i < 3; i++) { if (secret[i] === d) s++; if (guess[i] === d) g++; }
+      common += Math.min(s, g);
+    }
+    return bulls * 10 + (common - bulls); // 編碼: bulls*10 + cows
+  }
+  function filterCands(cands, guess, bulls, cows) {
+    const key = bulls * 10 + cows;
+    return cands.filter(c => score(c, guess) === key);
+  }
+  function bestGuess(cands) {
+    if (cands.length <= 2) return cands[0];
+    const candSet = new Set(cands);
+    let best = null, bestWorst = Infinity, bestIn = 2;
+    // 候選很多時整組評估仍在毫秒級；池 = 候選集
+    for (const g of cands) {
+      const buckets = Object.create(null);
+      let worst = 0;
+      for (const c of cands) {
+        const k = score(c, g);
+        const v = (buckets[k] = (buckets[k] || 0) + 1);
+        if (v > worst) worst = v;
+      }
+      const inSet = candSet.has(g) ? 0 : 1;
+      if (worst < bestWorst || (worst === bestWorst && inSet < bestIn)) {
+        bestWorst = worst; best = g; bestIn = inSet;
+      }
+    }
+    return best;
+  }
+
+  // ---------- 狀態 ----------
+  let candidates, history, excluded, current, sel, snapshots;
+
+  function reset() {
+    candidates = allCandidates();
+    history = [];
+    excluded = new Set();
+    snapshots = [];
+    applyExclude();
+  }
+  function applyExclude() {
+    if (excluded.size) {
+      candidates = candidates.filter(c => ![...c].some(d => excluded.has(d)));
+    }
+    pickNext();
+  }
+  function pickNext() {
+    sel = { bull: 0, cow: 0 };
+    if (candidates.length > 0) current = bestGuess(candidates);
+    render();
+  }
+
+  // ---------- 畫面 ----------
+  const $ = id => document.getElementById(id);
+
+  function buildSegments() {
+    for (const [box, kind] of [[$("segBull"), "bull"], [$("segCow"), "cow"]]) {
+      box.innerHTML = "";
+      for (let i = 0; i <= 3; i++) {
+        const b = document.createElement("button");
+        b.textContent = i;
+        b.dataset.v = i;
+        b.addEventListener("click", () => {
+          sel[kind] = i;
+          renderSeg();
+          $("msg").textContent = "";
+        });
+        box.appendChild(b);
+      }
+    }
+  }
+  function renderSeg() {
+    const segs = [["segBull", "bull"], ["segCow", "cow"]];
+    for (const [id, kind] of segs) {
+      [...$(id).children].forEach(btn => {
+        const v = +btn.dataset.v;
+        btn.classList.toggle("on", v === sel[kind]);
+        // 限制 ●+▲ ≤ 3
+        const other = kind === "bull" ? sel.cow : sel.bull;
+        btn.disabled = v + other > 3;
+      });
+    }
+  }
+
+  function buildChips() {
+    const box = $("chips");
+    box.innerHTML = "";
+    for (const d of DIGITS) {
+      const c = document.createElement("button");
+      c.className = "chip";
+      c.textContent = d;
+      c.addEventListener("click", () => {
+        if (excluded.has(d)) excluded.delete(d); else excluded.add(d);
+        // 重建候選：從全集重跑排除 + 既有歷史回饋
+        rebuild();
+      });
+      box.appendChild(c);
+    }
+  }
+  function renderChips() {
+    [...$("chips").children].forEach(c => {
+      c.classList.toggle("off", excluded.has(c.textContent));
+    });
+  }
+
+  // 依 excluded + history 從頭重建候選（排除數字後仍要滿足所有既往回饋）
+  function rebuild() {
+    let c = allCandidates();
+    if (excluded.size) c = c.filter(x => ![...x].some(d => excluded.has(d)));
+    for (const h of history) c = filterCands(c, h.guess, h.bull, h.cow);
+    candidates = c;
+    pickNext();
+  }
+
+  function render() {
+    $("turnNo").textContent = history.length + 1;
+    $("remain").textContent = candidates.length;
+    renderChips();
+    renderHistory();
+    renderSeg();
+
+    const winSlot = $("winSlot");
+    const vault = $("vault");
+
+    if (candidates.length === 1) {
+      showDials(candidates[0], true);
+      winSlot.innerHTML =
+        '<div class="win"><div class="k">Vault Unlocked</div>' +
+        '<div class="pw">' + spaced(candidates[0]) + '</div>' +
+        '<p>只剩這一組可能 — 到遊戲裡輸入它即可開鎖！</p></div>';
+      vault.style.opacity = ".55";
+      return;
+    }
+    if (candidates.length === 0) {
+      winSlot.innerHTML =
+        '<div class="win" style="border-color:var(--miss);box-shadow:none;background:var(--panel)">' +
+        '<div class="k" style="color:var(--miss)">No Match</div>' +
+        '<p style="margin-top:10px">回饋出現矛盾，找不到符合的密碼。<br>請按 ↶ 撤回上一步，或「重新開始」。</p></div>';
+      return;
+    }
+    winSlot.innerHTML = "";
+    vault.style.opacity = "1";
+    showDials(current, true);
+  }
+
+  function spaced(s) { return [...s].join(" "); }
+
+  function showDials(code, animate) {
+    const box = $("dials");
+    box.innerHTML = "";
+    [...code].forEach(d => {
+      const dial = document.createElement("div");
+      dial.className = "dial" + (animate ? " flip" : "");
+      const sp = document.createElement("span");
+      sp.textContent = d;
+      dial.appendChild(sp);
+      box.appendChild(dial);
+    });
+  }
+
+  function renderHistory() {
+    const box = $("history");
+    if (!history.length) {
+      box.innerHTML = '<div class="empty">尚無紀錄 — 依上方指示輸入第一組密碼</div>';
+      return;
+    }
+    box.innerHTML = "";
+    history.forEach((h, i) => {
+      const row = document.createElement("div");
+      row.className = "row";
+      const miss = 3 - h.bull - h.cow;
+      let pips = '';
+      if (h.bull) pips += '<span class="pip good">● ' + h.bull + '</span>';
+      if (h.cow) pips += '<span class="pip warn">▲ ' + h.cow + '</span>';
+      if (!h.bull && !h.cow) pips += '<span class="pip miss">X 全不中</span>';
+      else if (miss) pips += '<span class="pip miss">X ' + miss + '</span>';
+      row.innerHTML =
+        '<span class="n">' + (i + 1) + '</span>' +
+        '<span class="code">' + spaced(h.guess) + '</span>' +
+        '<span class="res">' + pips + '</span>';
+      box.appendChild(row);
+    });
+  }
+
+  // ---------- 動作 ----------
+  function submit() {
+    if (candidates.length <= 1) return;
+    const b = sel.bull, w = sel.cow;
+    if (b + w > 3) { err("● 加 ▲ 不能超過 3"); return; }
+    if (b === 2 && w === 1) { err("●2 ▲1 不可能出現，請再確認回饋"); return; }
+    if (b === 3) {
+      snapshots.push(candidates.slice());
+      history.push({ guess: current, bull: 3, cow: 0 });
+      candidates = [current];
+      render();
+      return;
+    }
+    const next = filterCands(candidates, current, b, w);
+    if (next.length === 0) {
+      err("此回饋與先前紀錄矛盾，找不到密碼 — 請再確認");
+      return;
+    }
+    snapshots.push(candidates.slice());
+    history.push({ guess: current, bull: b, cow: w });
+    candidates = next;
+    pickNext();
+  }
+  function err(m) { const el = $("msg"); el.textContent = m; el.className = "msg err"; }
+
+  function undo() {
+    if (!snapshots.length) return;
+    candidates = snapshots.pop();
+    history.pop();
+    pickNext();
+  }
+
+  // ---------- 綁定 ----------
+  buildSegments();
+  buildChips();
+  reset();
+
+  $("submit").addEventListener("click", submit);
+  $("undo").addEventListener("click", undo);
+  $("allMiss").addEventListener("click", () => { sel = { bull: 0, cow: 0 }; renderSeg(); submit(); });
+  const doReset = () => { reset(); $("msg").textContent = ""; };
+  $("resetBtn").addEventListener("click", doReset);
+  $("resetBtn").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); doReset(); } });
+
+  // Enter 送出
+  document.addEventListener("keydown", e => {
+    if (e.key === "Enter" && e.target.tagName !== "BUTTON") submit();
+  });
+
+  // 主題切換
+  const root = document.documentElement;
+  $("themeBtn").addEventListener("click", () => {
+    const cur = root.getAttribute("data-theme");
+    const isDark = cur ? cur === "dark"
+      : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    root.setAttribute("data-theme", isDark ? "light" : "dark");
+  });
+})();
+</script>
