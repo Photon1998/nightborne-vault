@@ -243,6 +243,53 @@
   }
   .win p { color: var(--ink-soft); margin: 4px 0 0; font-size: .9rem; }
 
+  /* ---- guild recruitment ---- */
+  .guild {
+    margin-top: 30px; padding: 24px 22px 22px; border-radius: 18px;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--gold) 10%, var(--panel)), var(--panel));
+    border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--line));
+    position: relative; overflow: hidden;
+  }
+  .guild::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .guild-badge {
+    display: inline-block; font-size: .68rem; letter-spacing: .24em; text-transform: uppercase;
+    color: var(--gold); font-weight: 700; border: 1px solid color-mix(in srgb, var(--gold) 50%, transparent);
+    padding: 4px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+  .guild h3 {
+    margin: 0; font-size: 1.5rem; font-weight: 800; letter-spacing: .04em;
+  }
+  .guild-server { color: var(--ink-soft); font-size: .86rem; margin-top: 4px; }
+  .guild-server b { color: var(--gold); font-variant-numeric: tabular-nums; letter-spacing: .08em; }
+  .guild-list {
+    list-style: none; padding: 0; margin: 16px 0 0; display: flex; flex-direction: column; gap: 8px;
+  }
+  .guild-list li {
+    position: relative; padding-left: 20px; font-size: .9rem; color: var(--ink); line-height: 1.55;
+  }
+  .guild-list li::before {
+    content: "◆"; position: absolute; left: 0; color: var(--gold); font-size: .7rem; top: .3em;
+  }
+  .guild-req {
+    margin-top: 16px; padding: 12px 14px; border-radius: 12px;
+    background: var(--panel-2); border: 1px solid color-mix(in srgb, var(--gold) 30%, var(--line));
+    font-size: .92rem; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .guild-req b { color: var(--gold); font-variant-numeric: tabular-nums; }
+  .req-tag {
+    font-size: .66rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 700;
+    color: #221a08; background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+    padding: 3px 9px; border-radius: 6px; white-space: nowrap;
+  }
+  .guild-contact {
+    margin-top: 14px; font-size: .9rem; color: var(--ink-soft); line-height: 1.6;
+  }
+  .guild-contact b { color: var(--ink); }
+
   footer { text-align: center; color: var(--ink-soft); font-size: .78rem; margin-top: 34px; line-height: 1.7; }
 
   /* theme toggle */
@@ -311,6 +358,23 @@
   <section class="ledger">
     <h2>嘗試紀錄 <span id="resetBtn" role="button" tabindex="0" style="cursor:pointer">重新開始 ↻</span></h2>
     <div id="history"></div>
+  </section>
+
+  <section class="guild">
+    <div class="guild-badge">🛡️ 工會招生</div>
+    <h3>自強中心</h3>
+    <div class="guild-server">斯卡尼亞 Scania · 工會代號 <b>29505</b></div>
+    <ul class="guild-list">
+      <li>氣氛輕鬆、互助友善，一起打王、跑活動、拚工會任務</li>
+      <li>只求穩定上線、有愛就好，沒有硬性壓力</li>
+    </ul>
+    <div class="guild-req">
+      <span class="req-tag">招募條件</span>
+      下水道 <b>20w 分</b>以上的打手
+    </div>
+    <div class="guild-contact">
+      搜代號 <b>29505</b> 加入，或遊戲內私聊 <b>酸奶和小橘子</b>
+    </div>
   </section>
 
   <footer>
